@@ -1,0 +1,3 @@
+add_executable(fast_division_example fast_division_example.cpp)
+
+set_target_properties(fast_division_example PROPERTIES FOLDER "Fast_Division_Example")
