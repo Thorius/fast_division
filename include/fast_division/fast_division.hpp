@@ -1,7 +1,11 @@
 /** 
  *  Fast Division Library
- *
- *
+ *  
+ *  Created by Stefan Ivanov
+ *  
+ *  Using ideas from 
+ *  Division by Invariant Integers Using Multiplication (1994)
+ *  by Torbjörn Granlund, Peter L. Montgomery
  */
 
 

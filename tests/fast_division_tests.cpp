@@ -6,7 +6,7 @@
 #include <immintrin.h>
 #include <random>
 
-#include "fast_division.hpp"
+#include "fast_division/fast_division.hpp"
 
 namespace fd_t = fast_division::tests;
 
