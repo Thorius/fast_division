@@ -1,37 +1,16 @@
+/** 
+ *  Fast Division Library
+ *
+ *
+ */
+
+
 #pragma once
 
 #include <immintrin.h>
 #include <algorithm>
 #include <cstdint>
 #include <cassert>
-
-/*
-/// Definitions for various compiler intrinsics
-#if defined(__GNUG__) || defined(__clang__)
-# define MTS_CLZ __builtin_clz
-# define MTS_CLZLL __builtin_clzll
-#elif defined(_MSC_VER)
-# define MTS_CLZ __lzcnt
-# define MTS_CLZLL __lzcnt64
-#endif
-/// Compute the base-2 logarithm of an unsigned integer
-template <typename T>
-T log2i(T value)
-{
-    //Assert(value >= 0);
-#if defined(MTS_CLZ) && defined(MTS_CLZLL)
-    if (sizeof(T) <= 4)
-        return T(MTS_CLZ((unsigned int)value));
-    else
-        return T(MTS_CLZLL((unsigned long long) value));
-#else
-    T r = 0;
-    while ((value >> r) != 0)
-        r++;
-    return r - 1;
-#endif
-}
-*/
 
 /// Efficiently compute the floor of the base-2 logarithm of an unsigned integer
 template <typename T> 
@@ -45,9 +24,9 @@ T log2i(T value)
 #elif defined(_WIN32)
     unsigned long result;
     if (sizeof(T) <= 4)
-        _BitScanReverse(&result, (unsigned long)value);
+        _BitScanReverse(&result, static_cast<unsigned long>(value));
     else
-        _BitScanReverse64(&result, (unsigned __int64)value);
+        _BitScanReverse64(&result, static_cast<unsigned long long>(value));
     return T(result);
 #else
     T r = 0;
@@ -67,7 +46,7 @@ namespace fast_division {
         uint32_t shift_1;
         uint32_t shift_2;
 
-        constant_divider(std::uint32_t divisor)
+        explicit constant_divider(std::uint32_t divisor)
             : divisor(divisor)
         {
             switch (divisor) {
@@ -122,5 +101,19 @@ namespace fast_division {
             return second_shift;
         }
     };
+
+    /// Operator overloads so that the fast_divider can be used in a generic context.
+    /// Furthermore, this provides a more natural syntax for use.
+
+    inline 
+    uint32_t operator/ (uint32_t divident, const constant_divider& divisor)
+    {
+        return divisor(divident);
+    }
+
+    inline
+    __m128i operator/ (__m128i divident, const constant_divider& divisor) {
+        return divisor(divident);
+    }
 
 }

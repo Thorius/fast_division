@@ -1,13 +1,12 @@
 #include "fast_division_tests.hpp"
 
-#include "fast_division.hpp"
 
 #include <cassert>
-#include <iostream>
 #include <vector>
-#include <chrono>
 #include <immintrin.h>
 #include <random>
+
+#include "fast_division.hpp"
 
 namespace fd_t = fast_division::tests;
 
@@ -55,7 +54,7 @@ bool fd_t::division_simd(uint32_t first_dividend, uint32_t last_dividend, uint32
         while (current_dividend < last_dividend) {
             n = _mm_setr_epi32(current_dividend, current_dividend + 1, current_dividend + 2, current_dividend + 3);
             q = divider(n);
-            _mm_storeu_si128((__m128i*)check, q);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(check), q);
             for (int i = 0; i != 4; ++i) {
                 if (check[i] != (current_dividend + i) / first_divisor) {
                     is_correct = false;
@@ -83,7 +82,7 @@ bool fd_t::division_by_primes_simd(uint32_t first_dividend, uint32_t last_divide
         while (current_dividend < last_dividend) {
             n = _mm_setr_epi32(current_dividend, current_dividend + 1, current_dividend + 2, current_dividend + 3);
             q = divider(n);
-            _mm_storeu_si128((__m128i*)check, q);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(check), q);
             for (int i = 0; i != 4; ++i) {
                 if (check[i] != (current_dividend + i) / primes[first_prime_index]) {
                     is_correct = false;
@@ -106,14 +105,8 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
     std::mt19937 divisor_generator(rd());
     std::uniform_int_distribution<uint32_t> dividend_distribution(1, std::numeric_limits<uint32_t>::max());
     std::uniform_int_distribution<uint32_t> divisor_distribution(1, std::numeric_limits<uint32_t>::max());
-    //auto time = std::chrono::system_clock::now();
-    //pcg32 rng(time.time_since_epoch().count());
-    //pcg32_8 rng_dividend;
     while (num_divisors) {
-        //auto time = std::chrono::system_clock::now();
-        //pcg32 rng(time.time_since_epoch().count());
         uint32_t divisor = divisor_distribution(divisor_generator);
-        //rng.nextUInt();
         constant_divider divider(divisor);
         auto rounding = divisions_per_divisor % 8;
         auto current_divisions = rounding ? divisions_per_divisor + (8 - rounding) : divisions_per_divisor;
@@ -124,12 +117,12 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
             for (auto& dividend : dividends)
                 dividend = dividend_distribution(dividend_generator);
             //rng_dividend.nextUInt(dividends);
-            batch_1 = _mm_loadu_si128((__m128i*)dividends);
-            batch_2 = _mm_loadu_si128((__m128i*)(dividends + 4));
+            batch_1 = _mm_loadu_si128(reinterpret_cast<__m128i const*>(dividends));
+            batch_2 = _mm_loadu_si128(reinterpret_cast<__m128i const*>(dividends + 4));
             q_1 = divider(batch_1);
             q_2 = divider(batch_2);
-            _mm_storeu_si128((__m128i*)check, q_1);
-            _mm_storeu_si128((__m128i*)(check + 4), q_2);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(check), q_1);
+            _mm_storeu_si128(reinterpret_cast<__m128i*>(check + 4), q_2);
             for (int i = 0; i != 8; ++i) {
                 if (check[i] != (dividends[i] / divisor)) {
                     is_correct = false;

@@ -21,16 +21,13 @@ void interactive_division()
         cin >> a[0] >> a[1] >> a[2] >> a[3];
         n = _mm_setr_epi32(a[0], a[1], a[2], a[3]);
         q = divider(n);
-        _mm_storeu_si128((__m128i*)print, q);
+        _mm_storeu_si128(reinterpret_cast<__m128i*>(print), q);
         for (int i = 0; i != 4; ++i) {
             cout << print[i] << " ";
         }
         cout << "\n\n";
     }
 }
-
-
-
 
 int main()
 {
