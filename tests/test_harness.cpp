@@ -8,5 +8,7 @@ int main()
           && fd_t::division_by_primes_simd(0, 10000, 0, 100)
           && fd_t::division_random_simd(100, 10000);
 
-    return !result;
+    auto unsigned_test = fd_t::random_unsigned_division();
+
+    return !(unsigned_test && result);
 }

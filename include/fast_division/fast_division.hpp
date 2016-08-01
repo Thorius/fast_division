@@ -45,11 +45,11 @@ namespace fast_division {
             default:
                 Integer l = utility::log2i(divisor - 1) + 1;
                 // Check for overflow
-                Integer l2 = l < word_size ? (1 << l) : 0;
+                Integer l2 = l < word_size ? (Integer(1) << l) : 0;
                 // Alternatively:  multiplier = ((2 << (N + l)) / d) - (2 << N) + 1;
                 multiplier = 1 + Integer((p_type(l2 - divisor) << word_size) / divisor);
                 shift_1 = std::min(l, Integer(1));
-                shift_2 = std::max((l - 1), Integer(0));    // sh2 = l - sh1
+                shift_2 = std::max<Integer>((l - Integer(1)), Integer(0));    // sh2 = l - sh1
                 break;
             }
         }
@@ -66,6 +66,33 @@ namespace fast_division {
         {
             static_assert(false, "Division by a simd vector must use a specialization");
             return input;
+        }
+
+        /// Equality and comparison operators delegating to the underlying divisor.
+
+        friend
+        bool operator== (const constant_divider& x, const constant_divider& y) {
+            return x.divisor == y.divisor;
+        }
+        friend
+        bool operator!= (const constant_divider& x, const constant_divider& y) {
+            return x.divisor != y.divisor;
+        }
+        friend
+        bool operator<  (const constant_divider& x, const constant_divider& y) {
+            return x.divisor < y.divisor;
+        }
+        friend
+        bool operator>  (const constant_divider& x, const constant_divider& y) {
+            return x.divisor > y.divisor;
+        }
+        friend
+        bool operator<= (const constant_divider& x, const constant_divider& y) {
+            return x.divisor <= y.divisor;
+        }
+        friend
+        bool operator>= (const constant_divider& x, const constant_divider& y) {
+            return x.divisor >= y.divisor;
         }
 
     };

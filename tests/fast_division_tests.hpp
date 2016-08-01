@@ -12,6 +12,8 @@ namespace fast_division {
 
         bool division_random_simd(uint32_t num_divisions, uint32_t divisions_per_divisor);
 
+        bool random_unsigned_division();
+
     }
 
 }
