@@ -16,7 +16,7 @@ void interactive_division()
         cin >> d;
         if (cin.eof())
             break;
-        fast_division::constant_divider divider(d);
+        fast_division::constant_divider_uint32 divider(d);
         cout << "Enter 4 dividends:\n";
         cin >> a[0] >> a[1] >> a[2] >> a[3];
         n = _mm_setr_epi32(a[0], a[1], a[2], a[3]);

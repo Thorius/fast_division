@@ -1,6 +1,5 @@
 #include "fast_division_tests.hpp"
 
-
 #include <cassert>
 #include <vector>
 #include <immintrin.h>
@@ -47,7 +46,7 @@ bool fd_t::division_simd(uint32_t first_dividend, uint32_t last_dividend, uint32
     bool is_correct = true;
 
     while (first_divisor < last_divisor) {
-        constant_divider divider(first_divisor);
+        constant_divider_uint32 divider(first_divisor);
         auto current_dividend = first_dividend;
         __m128i n, q;
         uint32_t check[4];
@@ -75,7 +74,7 @@ bool fd_t::division_by_primes_simd(uint32_t first_dividend, uint32_t last_divide
     bool is_correct = true;
     auto primes = calculate_prime_table(last_prime_index);
     while (first_prime_index != last_prime_index) {
-        constant_divider divider(primes[first_prime_index]);
+        constant_divider_uint32 divider(primes[first_prime_index]);
         auto current_dividend = first_dividend;
         __m128i n, q;
         uint32_t check[4];
@@ -107,7 +106,7 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
     std::uniform_int_distribution<uint32_t> divisor_distribution(1, std::numeric_limits<uint32_t>::max());
     while (num_divisors) {
         uint32_t divisor = divisor_distribution(divisor_generator);
-        constant_divider divider(divisor);
+        constant_divider_uint32 divider(divisor);
         auto rounding = divisions_per_divisor % 8;
         auto current_divisions = rounding ? divisions_per_divisor + (8 - rounding) : divisions_per_divisor;
         uint32_t dividends[8];
