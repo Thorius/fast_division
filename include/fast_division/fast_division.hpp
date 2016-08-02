@@ -32,25 +32,25 @@ namespace fast_division {
         explicit constant_divider(Integer divisor)
             : divisor(divisor) {
             // TODO Check if the divisor is a power of 2. 
-            // (n & (n - 1)) == 0
-            switch (divisor) {
-            case 1:
-                multiplier = 1;
-                shift_1 = shift_2 = 0;
-                break;
-            case 2:
-                multiplier = shift_1 = 1;
-                shift_2 = 0;
-                break;
-            default:
+            
+            if (divisor == 1) { // A no-op.
+                multiplier = shift_1 = shift_2 = 0;
+            } 
+            else if (divisor & (divisor - 1) == 0) { // Power of 2
+                multiplier = shift_1 = 0;
+                shift_2 = utility::log2i(divisor);
+            }
+            else { 
                 Integer l = utility::log2i(divisor - 1) + 1;
+                // The bellow works for most types but not for uint8_t for some strange reason.
                 // Check for overflow
-                Integer l2 = l < word_size ? (Integer(1) << l) : 0;
+                //Integer l2 = l < word_size ? (Integer(1) << l) : 0;
+                //multiplier = 1 + Integer((p_type(l2 - divisor) << word_size) / divisor);
                 // Alternatively:  multiplier = ((2 << (N + l)) / d) - (2 << N) + 1;
-                multiplier = 1 + Integer((p_type(l2 - divisor) << word_size) / divisor);
+                // or: multiplier = p_type(1 << (word_size + l)) / divisor - p_type(1 << word_size) + 1;
+                multiplier = 1 + ((p_type(1) << word_size) * ((p_type(1) << l) - divisor)) / divisor;
                 shift_1 = std::min(l, Integer(1));
-                shift_2 = std::max<Integer>((l - Integer(1)), Integer(0));    // sh2 = l - sh1
-                break;
+                shift_2 = l - shift_1;  //max(l - 1, 0)
             }
         }
 

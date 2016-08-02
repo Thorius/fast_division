@@ -29,7 +29,7 @@ namespace fast_division {
         };
 
         /// Helper for determining if a type a simd vector.
-        // TODO Add detection of available vector types.
+        // TODO Add detection of available simd types.
 
         template <typename T>
         struct is_simd {

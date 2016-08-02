@@ -11,15 +11,16 @@ namespace fd_t = fast_division::tests;
 
 namespace {
 
-    std::vector<uint32_t> calculate_prime_table(uint32_t num_primes)
+    template<typename Integer, typename  SizeType = uint64_t>
+    std::vector<Integer> calculate_prime_table(SizeType num_primes)
     {
         using namespace std;
         assert(num_primes != 0);
-        vector<uint32_t> primes;
+        vector<Integer> primes;
         primes.reserve(num_primes);
-        primes.push_back(2);
+        primes.push_back(Integer(2));
         --num_primes;
-        uint32_t candidate = 3;
+        Integer candidate = 3;
         while (num_primes != 0) {
             bool is_prime = true;
             for (auto& x : primes) {
@@ -41,9 +42,7 @@ namespace {
     using distribution_t = std::conditional_t<
         std::is_same<uint8_t, T>::value, 
         uint16_t, std::conditional_t<std::is_same<int8_t, T>::value,
-                                     int8_t, T> >;
-
-
+                                     int16_t, T> >;
 
     template<typename Integer, typename SizeType = uint64_t>
     bool random_division_impl(SizeType num_divisors, SizeType divisions_per_divisor)
@@ -118,7 +117,7 @@ bool fd_t::division_by_primes_simd(uint32_t first_dividend, uint32_t last_divide
     assert(first_dividend <= last_dividend && first_prime_index <= last_prime_index &&
         ((first_dividend - last_dividend) % 4 == 0));
     bool is_correct = true;
-    auto primes = calculate_prime_table(last_prime_index);
+    auto primes = calculate_prime_table<uint32_t>(last_prime_index);
     while (first_prime_index != last_prime_index) {
         constant_divider_uint32 divider(primes[first_prime_index]);
         auto current_dividend = first_dividend;
@@ -182,8 +181,8 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
 
 bool fd_t::random_unsigned_division()
 {
-    // Test for uint8_t // TODO Apparently, the algorithm does not work for uint_8, explore why.
-    auto uint8_test = true; // random_division_impl<uint8_t>(1000, 1000);
+    // Test for uint8_t
+    auto uint8_test = random_division_impl<uint8_t>(10000, 10000);
     // Test for uint16_t
     auto uint16_test = random_division_impl<uint16_t>(1000, 100000);
     // Test for uint32_t
