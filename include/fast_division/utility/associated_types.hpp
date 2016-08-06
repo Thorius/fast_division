@@ -25,11 +25,11 @@ namespace fast_division {
 
         template <typename T, typename U, typename... Ts>
         struct is_one_of <T, U, Ts...> {
-            constexpr static bool value = is_one_of<T, Ts...>::value;
+            constexpr static bool value = is_one_of<T, Ts...>::value;\
         };
 
-        /// Helper for determining if a type a simd vector.
-        // TODO Add detection of available simd types.
+        /// Helper for determining if a type a SIMD vector.
+        // TODO Add detection of available SIMD types.
 
         template <typename T>
         struct is_simd {

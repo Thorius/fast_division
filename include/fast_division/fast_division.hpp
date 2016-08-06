@@ -13,9 +13,9 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "utility/log2i.hpp"
-#include "utility/high_multiplication.hpp"
-#include "utility/associated_types.hpp."
+#include <fast_division/utility/associated_types.hpp>
+#include <fast_division/utility/log2i.hpp>
+#include <fast_division/utility/high_multiplication.hpp>
 
 namespace fast_division {
 
@@ -23,7 +23,6 @@ namespace fast_division {
     struct constant_divider {
         constexpr static const auto word_size = sizeof(Integer) * 8;
         using p_type  = utility::promotion_t<Integer>;
-        //using sh_type = utility::shift_t<Integer>;
         Integer divisor;
         Integer multiplier;
         Integer shift_1;
@@ -31,12 +30,10 @@ namespace fast_division {
 
         explicit constant_divider(Integer divisor)
             : divisor(divisor) {
-            // TODO Check if the divisor is a power of 2. 
-            
             if (divisor == 1) { // A no-op.
                 multiplier = shift_1 = shift_2 = 0;
             } 
-            else if (divisor & (divisor - 1) == 0) { // Power of 2
+            else if ((divisor & (divisor - Integer(1))) == 0) { // Power of 2
                 multiplier = shift_1 = 0;
                 shift_2 = utility::log2i(divisor);
             }
@@ -48,7 +45,7 @@ namespace fast_division {
                 //multiplier = 1 + Integer((p_type(l2 - divisor) << word_size) / divisor);
                 // Alternatively:  multiplier = ((2 << (N + l)) / d) - (2 << N) + 1;
                 // or: multiplier = p_type(1 << (word_size + l)) / divisor - p_type(1 << word_size) + 1;
-                multiplier = 1 + ((p_type(1) << word_size) * ((p_type(1) << l) - divisor)) / divisor;
+                multiplier = 1 + Integer(((p_type(1) << word_size) * ((p_type(1) << l) - divisor)) / divisor);
                 shift_1 = std::min(l, Integer(1));
                 shift_2 = l - shift_1;  //max(l - 1, 0)
             }

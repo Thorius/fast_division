@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "associated_types.hpp"
+#include <fast_division/utility/associated_types.hpp>
 
 namespace fast_division
 {

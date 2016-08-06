@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <immintrin.h>
 
-#include "fast_division/fast_division.hpp"
+#include <fast_division/fast_division.hpp>
 
 void interactive_division()
 {

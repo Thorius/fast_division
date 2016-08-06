@@ -1,4 +1,5 @@
 add_executable(fast_division_example fast_division_example.cpp)
-target_link_libraries(fast_division_example INTERFACE fast_division)
+target_link_libraries(fast_division_example PRIVATE fast_division)
 
-set_target_properties(fast_division_example PROPERTIES FOLDER "Fast_Division_Example")
+set_target_properties(fast_division_example PROPERTIES FOLDER "Fast Division Example")
+source_group(example FILES fast_division_example.cpp)

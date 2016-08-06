@@ -5,7 +5,7 @@
 #include <immintrin.h>
 #include <random>
 
-#include "fast_division/fast_division.hpp"
+#include <fast_division/fast_division.hpp>
 
 namespace fd_t = fast_division::tests;
 
@@ -58,7 +58,7 @@ namespace {
         uniform_int_distribution<distribution_t<Integer>> divisor_distribution(
             numeric_limits<Integer>::min(), numeric_limits<Integer>::max());
         while (num_divisors) {
-            Integer divisor = divisor_distribution(divisor_generator);
+            Integer divisor = static_cast<Integer>(divisor_distribution(divisor_generator));
             // Skip division by zero.
             if (divisor == Integer(0)) {
                 continue;
@@ -66,7 +66,7 @@ namespace {
             constant_divider<Integer> divider(divisor);
             auto current_divisions = divisions_per_divisor;
             while (current_divisions) {
-                Integer dividend = dividend_distribution(dividend_generator);
+                Integer dividend = static_cast<Integer>(dividend_distribution(dividend_generator));
                 Integer result = divider(dividend);
                 Integer expected = dividend / divisor;
                 if(result != expected) {
