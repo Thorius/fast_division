@@ -1,0 +1,116 @@
+/**
+*  Fast Division Library
+*  Created by Stefan Ivanov
+*
+*  Using ideas from
+*  Division by Invariant Integers Using Multiplication (1994)
+*  by Torbjörn Granlund, Peter L. Montgomery
+*/
+#pragma once
+
+#include <algorithm>
+
+#include <fast_division/utility/associated_types.hpp>
+#include <fast_division/utility/log2i.hpp>
+#include <fast_division/utility/high_multiplication.hpp>
+
+namespace fast_division {
+
+    template<typename Integer, bool Signed>
+    class constant_divider_base {
+    public:
+        constexpr static const auto word_size = sizeof(Integer) * 8;
+        using p_type = utility::promotion_t<Integer>;
+
+        explicit constant_divider_base(Integer divisor)
+        {
+            if (divisor == 1) { // A no-op.
+                multiplier_ = shift_1_ = shift_2_ = 0;
+            }
+            else if ((divisor & (divisor - Integer(1))) == 0) { // Power of 2
+                multiplier_ = shift_1_ = 0;
+                shift_2_ = utility::log2i(divisor);
+            }
+            else {
+                Integer l = utility::log2i(divisor - 1) + 1;
+                // The bellow works for most types but not for uint8_t for some strange reason.
+                // Check for overflow
+                //Integer l2 = l < word_size ? (Integer(1) << l) : 0;
+                //multiplier = 1 + Integer((p_type(l2 - divisor) << word_size) / divisor);
+                // Alternatively:  multiplier = ((2 << (N + l)) / d) - (2 << N) + 1;
+                // or: multiplier = p_type(1 << (word_size + l)) / divisor - p_type(1 << word_size) + 1;
+                multiplier_ = 1 + Integer(((p_type(1) << word_size) * ((p_type(1) << l) - divisor)) / divisor);
+                shift_1_ = std::min(l, Integer(1));
+                shift_2_ = l - shift_1_;  //max(l - 1, 0)
+            }
+        }
+
+        Integer operator()(Integer input)  const
+        {
+            Integer t = utility::high_mult(multiplier_, input);
+            Integer q = (t + ((input - t) >> shift_1_)) >> shift_2_;
+            return q;
+        }
+
+
+        template <typename Simd, typename = std::enable_if_t<utility::is_simd<Simd>::value>>
+        Simd operator()(Simd input) const
+        {
+            static_assert(false, "Division by a simd vector must use a specialization");
+            return input;
+        }
+
+    private:
+        Integer multiplier_;
+        Integer shift_1_;
+        Integer shift_2_;
+    };
+
+
+    template <typename Integer>
+    class constant_divider_base<Integer, true> {
+    public:
+        constexpr static const auto word_size = sizeof(Integer) * 8;
+        using p_type = utility::promotion_t<Integer>;
+
+        explicit constant_divider_base(Integer divisor)
+        {
+            Integer abs_divisor;
+            if (divisor < 0) {
+                sign_ = Integer(-1);
+                abs_divisor = -divisor;
+            }
+            else {
+                sign_ = Integer(0);
+                abs_divisor = divisor;
+            }
+
+            Integer l = utility::log2i(divisor - 1) + 1;
+            l = std::max(l, 1);
+            shift_ = l - 1;
+            multiplier_ = 1 + (p_type(1) << (word_size + l)) / abs_divisor - (p_type(1) << word_size);
+        }
+
+        Integer operator()(Integer input) const
+        {
+            Integer q = input + utility::high_mult(multiplier_, input);
+            q = (q >> sh1) - sign_;
+            return q ^ sign_;
+        }
+
+
+        template <typename Simd, typename = std::enable_if_t<utility::is_simd<Simd>::value>>
+        Simd operator()(Simd input) const
+        {
+            static_assert(false, "Division by a simd vector must use a specialization");
+            return input;
+        }
+
+    private:
+        Integer multiplier_;
+        Integer shift_;
+        Integer sign_;
+
+    };
+
+}

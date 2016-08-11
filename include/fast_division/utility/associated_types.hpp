@@ -5,9 +5,8 @@
 #pragma once
 
 namespace fast_division {
-
     namespace utility {
-        
+
         /// Meta-function for linear search.
 
         template <typename... T>
@@ -25,7 +24,7 @@ namespace fast_division {
 
         template <typename T, typename U, typename... Ts>
         struct is_one_of <T, U, Ts...> {
-            constexpr static bool value = is_one_of<T, Ts...>::value;\
+            constexpr static bool value = is_one_of<T, Ts...>::value;
         };
 
         /// Helper for determining if a type a SIMD vector.

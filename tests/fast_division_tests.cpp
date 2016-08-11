@@ -6,6 +6,8 @@
 #include <random>
 
 #include <fast_division/fast_division.hpp>
+#include <fast_division/fast_division_base.hpp>
+#include <fast_division/fast_division_simd.hpp>
 
 namespace fd_t = fast_division::tests;
 
@@ -58,17 +60,17 @@ namespace {
         uniform_int_distribution<distribution_t<Integer>> divisor_distribution(
             numeric_limits<Integer>::min(), numeric_limits<Integer>::max());
         while (num_divisors) {
-            Integer divisor = static_cast<Integer>(divisor_distribution(divisor_generator));
+            Integer divisor_ = static_cast<Integer>(divisor_distribution(divisor_generator));
             // Skip division by zero.
-            if (divisor == Integer(0)) {
+            if (divisor_ == Integer(0)) {
                 continue;
             }
-            constant_divider<Integer> divider(divisor);
+            constant_divider<Integer> divider(divisor_);
             auto current_divisions = divisions_per_divisor;
             while (current_divisions) {
                 Integer dividend = static_cast<Integer>(dividend_distribution(dividend_generator));
                 Integer result = divider(dividend);
-                Integer expected = dividend / divisor;
+                Integer expected = dividend / divisor_;
                 if(result != expected) {
                     is_correct = false;
                 }
@@ -150,8 +152,8 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
     std::uniform_int_distribution<uint32_t> dividend_distribution(1, std::numeric_limits<uint32_t>::max());
     std::uniform_int_distribution<uint32_t> divisor_distribution(1, std::numeric_limits<uint32_t>::max());
     while (num_divisors) {
-        uint32_t divisor = divisor_distribution(divisor_generator);
-        constant_divider_uint32 divider(divisor);
+        uint32_t divisor_ = divisor_distribution(divisor_generator);
+        constant_divider_uint32 divider(divisor_);
         auto rounding = divisions_per_divisor % 8;
         auto current_divisions = rounding ? divisions_per_divisor + (8 - rounding) : divisions_per_divisor;
         uint32_t dividends[8];
@@ -167,7 +169,7 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
             _mm_storeu_si128(reinterpret_cast<__m128i*>(check), q_1);
             _mm_storeu_si128(reinterpret_cast<__m128i*>(check + 4), q_2);
             for (int i = 0; i != 8; ++i) {
-                if (check[i] != (dividends[i] / divisor)) {
+                if (check[i] != (dividends[i] / divisor_)) {
                     is_correct = false;
                 }
             }

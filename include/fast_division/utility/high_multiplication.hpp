@@ -1,4 +1,4 @@
-/** 
+/**
  *  Fast Division Library
  *  Created by Stefan Ivanov
  */
@@ -6,14 +6,13 @@
 
 #include <fast_division/utility/associated_types.hpp>
 
-namespace fast_division
-{
-    namespace utility
-    {
+namespace fast_division {
+    namespace utility {
 
         template <typename Integer>
         inline constexpr
-        Integer high_mult(Integer x, Integer y) {
+        Integer high_mult(Integer x, Integer y)
+        {
             using p_type = promotion_t<Integer>;
             // Due to lack of constexpr support in VS, it is not as clear as it can be.
             //constexpr const auto word_size = 8*sizeof(Integer);
