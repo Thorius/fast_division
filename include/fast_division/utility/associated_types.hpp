@@ -59,5 +59,20 @@ namespace fast_division {
             using type = uint64_t;
         };
 
+        template <>
+        struct promotion<int8_t> {
+            using type = int16_t;
+        };
+
+        template <>
+        struct promotion<int16_t> {
+            using type = int32_t;
+        };
+
+        template <>
+        struct promotion<int32_t> {
+            using type = int64_t;
+        };
+
     }
 }

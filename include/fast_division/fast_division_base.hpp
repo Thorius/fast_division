@@ -75,7 +75,7 @@ namespace fast_division {
 
         explicit constant_divider_base(Integer divisor)
         {
-            Integer abs_divisor;
+            std::make_unsigned_t<Integer> abs_divisor;
             if (divisor < 0) {
                 sign_ = Integer(-1);
                 abs_divisor = -divisor;
@@ -85,17 +85,17 @@ namespace fast_division {
                 abs_divisor = divisor;
             }
 
-            Integer l = utility::log2i(divisor - 1) + 1;
-            l = std::max(l, 1);
+            Integer l = utility::log2i(abs_divisor - 1) + 1;
+            l = std::max(l, Integer(1));
             shift_ = l - 1;
-            multiplier_ = 1 + (p_type(1) << (word_size + l)) / abs_divisor - (p_type(1) << word_size);
+            multiplier_ = 1 + Integer((p_type(1) << (word_size + shift_)) / abs_divisor - (p_type(1) << word_size));
         }
 
         Integer operator()(Integer input) const
         {
             Integer q = input + utility::high_mult(multiplier_, input);
-            q = (q >> sh1) - sign_;
-            return q ^ sign_;
+            q = (q >> shift_) - (input >= 0 ? 0 : -1);
+            return (q ^ sign_) - sign_;
         }
 
 

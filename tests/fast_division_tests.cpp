@@ -91,7 +91,7 @@ bool fd_t::division_simd(uint32_t first_dividend, uint32_t last_dividend,
     bool is_correct = true;
 
     while (first_divisor < last_divisor) {
-        constant_divider_uint32 divider(first_divisor);
+        constant_divider<uint32_t> divider(first_divisor);
         auto current_dividend = first_dividend;
         __m128i n, q;
         uint32_t check[4];
@@ -121,7 +121,7 @@ bool fd_t::division_by_primes_simd(uint32_t first_dividend, uint32_t last_divide
     bool is_correct = true;
     auto primes = calculate_prime_table<uint32_t>(last_prime_index);
     while (first_prime_index != last_prime_index) {
-        constant_divider_uint32 divider(primes[first_prime_index]);
+        constant_divider<uint32_t> divider(primes[first_prime_index]);
         auto current_dividend = first_dividend;
         __m128i n, q;
         uint32_t check[4];
@@ -153,7 +153,7 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
     std::uniform_int_distribution<uint32_t> divisor_distribution(1, std::numeric_limits<uint32_t>::max());
     while (num_divisors) {
         uint32_t divisor_ = divisor_distribution(divisor_generator);
-        constant_divider_uint32 divider(divisor_);
+        constant_divider<uint32_t> divider(divisor_);
         auto rounding = divisions_per_divisor % 8;
         auto current_divisions = rounding ? divisions_per_divisor + (8 - rounding) : divisions_per_divisor;
         uint32_t dividends[8];
@@ -191,4 +191,18 @@ bool fd_t::random_unsigned_division()
     auto uint32_test = random_division_impl<uint32_t>(1000, 100000);
     
     return uint8_test && uint16_test && uint32_test;
+}
+
+bool fd_t::random_signed_division()
+{
+
+    // Test for uint8_t
+    auto int8_test = random_division_impl<int8_t>(10000, 10000);
+    // Test for uint16_t
+    auto int16_test = random_division_impl<int16_t>(1000, 100000);
+    // Test for uint32_t
+    auto int32_test = random_division_impl<int32_t>(1000, 100000);
+
+    return int8_test && int16_test && int32_test;
+
 }

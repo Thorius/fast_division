@@ -14,6 +14,8 @@ namespace fast_division {
 
         bool random_unsigned_division();
 
+        bool random_signed_division();
+
     }
 
 }

@@ -31,7 +31,7 @@ namespace fast_division {
         const Integer& divisor() const { return divisor_; }
 
         template <typename T>
-        auto operator()(T&& input)
+        auto operator()(T&& input) const
         {
             return base::operator()(std::forward<T>(input));
         }
@@ -82,7 +82,5 @@ namespace fast_division {
     {
         return divisor(std::forward<T>(divident));
     }
-
-    using constant_divider_uint32 = constant_divider<uint32_t>;
 
 }
