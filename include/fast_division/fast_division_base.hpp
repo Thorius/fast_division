@@ -10,7 +10,6 @@
 
 #include <algorithm>
 
-#include <fast_division/utility/associated_types.hpp>
 #include <fast_division/division_policy.hpp>
 #include <fast_division/utility/log2i.hpp>
 #include <fast_division/utility/high_multiplication.hpp>
@@ -21,7 +20,6 @@ namespace fast_division {
     class constant_divider_base {
     public:
         constexpr static const auto word_size = sizeof(Integer) * 8;
-        using p_type = utility::promotion_t<Integer>;
         using division_policy = DivisionPolicy<Integer, Signed>;
 
         explicit constant_divider_base(Integer divisor)
@@ -50,8 +48,8 @@ namespace fast_division {
 
         Integer operator()(Integer input)  const
         {
-            Integer t = utility::high_mult(multiplier_, input);
-            Integer q = (t + ((input - t) >> shift_1_)) >> shift_2_;
+            Integer q = utility::high_mult(multiplier_, input);
+            q = (q + ((input - q) >> shift_1_)) >> shift_2_;
             return q;
         }
 
@@ -73,7 +71,6 @@ namespace fast_division {
     class constant_divider_base<Integer, true, DivisionPolicy> {
     public:
         constexpr static const auto word_size = sizeof(Integer) * 8;
-        using p_type = utility::promotion_t<Integer>;
         using division_policy = DivisionPolicy<Integer, true>;
 
         explicit constant_divider_base(Integer divisor)

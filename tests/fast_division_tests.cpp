@@ -8,6 +8,8 @@
 #include <fast_division/fast_division.hpp>
 #include <fast_division/fast_division_base.hpp>
 #include <fast_division/fast_division_simd.hpp>
+#include <fast_division/utility/associated_types.hpp>
+#include <fast_division/division_policy.hpp>
 
 namespace fd_t = fast_division::tests;
 
@@ -46,7 +48,7 @@ namespace {
         uint16_t, std::conditional_t<std::is_same<int8_t, T>::value,
                                      int16_t, T> >;
 
-    template<typename Integer, typename SizeType = uint64_t>
+    template<typename Integer, typename DivisionPolicy = fast_division::promotion_policy, typename SizeType = uint64_t>
     bool random_division_impl(SizeType num_divisors, SizeType divisions_per_divisor)
     {
         using namespace  std;
@@ -65,7 +67,7 @@ namespace {
             if (divisor_ == Integer(0)) {
                 continue;
             }
-            constant_divider<Integer> divider(divisor_);
+            constant_divider<Integer, DivisionPolicy> divider(divisor_);
             auto current_divisions = divisions_per_divisor;
             while (current_divisions) {
                 Integer dividend = static_cast<Integer>(dividend_distribution(dividend_generator));
@@ -77,6 +79,33 @@ namespace {
                 --current_divisions;
             }
             --num_divisors;
+        }
+        return is_correct;
+    }
+
+
+
+    template<typename Integer, typename DoubleWordInteger = fast_division::utility::promotion_t<Integer>,
+             typename SizeType = uint64_t>
+    bool high_division_impl(SizeType num_multiplication)
+    {
+        using namespace  std;
+        using namespace fast_division;
+        bool is_correct = true;
+        random_device rd;
+        mt19937 generator(rd());
+        uniform_int_distribution<distribution_t<Integer>> integer_distribution(
+            numeric_limits<Integer>::min(), numeric_limits<Integer>::max());
+        while (num_multiplication)
+        {
+            Integer m1 = static_cast<Integer>(integer_distribution(generator));
+            Integer m2 = static_cast<Integer>(integer_distribution(generator));
+            Integer result = utility::high_mult(m1, m2);
+            Integer expected = (DoubleWordInteger(m1) * DoubleWordInteger(m2)) >> (8 * sizeof(Integer));
+            if (result != expected) {
+                is_correct = false;
+            }
+            --num_multiplication;
         }
         return is_correct;
     }
@@ -183,6 +212,7 @@ bool fd_t::division_random_simd(uint32_t num_divisors, uint32_t divisions_per_di
 
 bool fd_t::random_unsigned_division()
 {
+    using namespace std;
     // Test for uint8_t
     auto uint8_test = random_division_impl<uint8_t>(10000, 10000);
     // Test for uint16_t
@@ -195,7 +225,7 @@ bool fd_t::random_unsigned_division()
 
 bool fd_t::random_signed_division()
 {
-
+    using namespace std;
     // Test for uint8_t
     auto int8_test = random_division_impl<int8_t>(1000, 10000);
     // Test for uint16_t
@@ -205,4 +235,24 @@ bool fd_t::random_signed_division()
 
     return int8_test && int16_test && int32_test;
 
+}
+
+bool fd_t::high_multiplication()
+{
+    using namespace std;
+    // Test for uint8_t
+    auto uint8_test = high_division_impl<std::uint8_t>(100);
+    // Test for uint16_t
+    auto uint16_test = high_division_impl<uint16_t>(1000);
+    // Test for uint32_t
+    auto uint32_test = high_division_impl<uint32_t>(10000);
+
+    // Test for int8_t
+    auto int8_test = high_division_impl<int8_t>(100);
+    // Test for int16_t
+    auto int16_test = high_division_impl<int16_t>(1000);
+    // Test for int32_t
+    auto int32_test = high_division_impl<int32_t>(10000);
+    return uint8_test && uint16_test && uint32_test &&
+           int8_test && int16_test && int32_test;
 }

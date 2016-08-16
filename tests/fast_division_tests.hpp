@@ -16,6 +16,8 @@ namespace fast_division {
 
         bool random_signed_division();
 
+        bool high_multiplication();
+
     }
 
 }

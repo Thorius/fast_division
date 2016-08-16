@@ -35,7 +35,7 @@ namespace fast_division {
             constexpr static bool value = is_one_of<T, __m128i, __m256i>::value;
         };
 
-        /// Promotion for integer types. Must be specialized to work properly.
+        /// Promotion for integer types. Must be specialized for user-defined types.
         template <typename T>
         struct promotion;
 
