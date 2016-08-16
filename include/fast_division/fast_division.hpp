@@ -78,9 +78,9 @@ namespace fast_division {
     /// Operator overload so that the fast_divider can be used in a generic context.
     /// Furthermore, this provides a more natural syntax for use.
 
-    template <typename Integer, typename T>
+    template <typename Integer, template <typename, bool> class DivisionPolicy, typename T>
     inline
-    Integer operator/ (T&& divident, const constant_divider<Integer>& divisor)
+    Integer operator/ (T&& divident, const constant_divider<Integer, DivisionPolicy>& divisor)
     {
         return divisor(std::forward<T>(divident));
     }

@@ -4,11 +4,14 @@
 
 #include <fast_division/fast_division.hpp>
 #include <fast_division/fast_division_simd.hpp>
+#include <fast_division/division_policy.hpp>
 
 using namespace std;
 
 void interactive_division_unsigned_simd()
 {
+    using fast_division::constant_divider;
+    using fast_division::decomposition_policy;
     uint32_t d;
     uint32_t a[4];
     __m128i n, q;
@@ -20,7 +23,7 @@ void interactive_division_unsigned_simd()
             cin.clear();
             break;
         }
-        fast_division::constant_divider<uint32_t> divider(d);
+        constant_divider<uint32_t> divider(d);
         cout << "Enter 4 dividends:\n";
         cin >> a[0] >> a[1] >> a[2] >> a[3];
         n = _mm_setr_epi32(a[0], a[1], a[2], a[3]);
@@ -33,8 +36,35 @@ void interactive_division_unsigned_simd()
     }
 }
 
+void interactive_division_unsigned()
+{
+    using fast_division::constant_divider;
+    using fast_division::decomposition_policy;
+    uint32_t divisor;
+    uint32_t dividends[4];
+    while (!cin.eof()) {
+        cout << "Enter divisor:\n";
+        cin >> divisor;
+        if (cin.eof()) {
+            cin.clear();
+            break;
+        }
+        constant_divider<uint32_t, decomposition_policy> divider(divisor);
+        cout << "Enter 4 dividends:\n";
+        for (auto& d : dividends) {
+            cin >> d;
+        }
+        for (auto& d : dividends) {
+            cout << (d / divider) << " ";
+        }                       
+        cout << "\n\n";
+    }
+}
+
 void interactive_division_signed()
 {
+    using fast_division::constant_divider;
+    using fast_division::decomposition_policy;
     int32_t divisor;
     int32_t dividends[4];
     while (!cin.eof()) {
@@ -44,7 +74,7 @@ void interactive_division_signed()
             cin.clear();
             break;
         }
-        fast_division::constant_divider<int32_t> divider(divisor);
+        constant_divider<int32_t, decomposition_policy> divider(divisor);
         cout << "Enter 4 dividends:\n";
         for (auto& d : dividends) {
             cin >> d;
@@ -59,17 +89,22 @@ void interactive_division_signed()
 int main()
 {
     char choice;
-    cout << "Choose mode:\n 1) Unsigned division.\n 2) Signed division.\n";
+    cout << "Choose mode:\n 1) Unsigned division.\n 2) Signed division.\n 3) Unsigned division SIMD.\n";
     while (cin >> choice) {
         switch (choice) {
         case '1':
-            interactive_division_unsigned_simd();
+            interactive_division_unsigned();
             break;
         case '2':
             interactive_division_signed();
             break;
+        case '3':
+            interactive_division_unsigned_simd();
+            break;
+        default:
+            cout << "Invalid option.\n";
         }
-        cout << "Choose mode:\n 1) Unsigned division.\n 2) Signed division.\n";
+        cout << "Choose mode:\n 1) Unsigned division.\n 2) Signed division.\n 3) Unsigned division SIMD.\n";
     }
 
     return 0;
