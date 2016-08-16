@@ -11,16 +11,18 @@
 #include <algorithm>
 
 #include <fast_division/utility/associated_types.hpp>
+#include <fast_division/division_policy.hpp>
 #include <fast_division/utility/log2i.hpp>
 #include <fast_division/utility/high_multiplication.hpp>
 
 namespace fast_division {
 
-    template<typename Integer, bool Signed>
+    template<typename Integer, bool Signed, template <typename I, bool S> class DivisionPolicy>
     class constant_divider_base {
     public:
         constexpr static const auto word_size = sizeof(Integer) * 8;
         using p_type = utility::promotion_t<Integer>;
+        using division_policy = DivisionPolicy<Integer, Signed>;
 
         explicit constant_divider_base(Integer divisor)
         {
@@ -39,7 +41,8 @@ namespace fast_division {
                 //multiplier = 1 + Integer((p_type(l2 - divisor) << word_size) / divisor);
                 // Alternatively:  multiplier = ((2 << (N + l)) / d) - (2 << N) + 1;
                 // or: multiplier = p_type(1 << (word_size + l)) / divisor - p_type(1 << word_size) + 1;
-                multiplier_ = 1 + Integer(((p_type(1) << word_size) * ((p_type(1) << l) - divisor)) / divisor);
+                //multiplier_ = 1 + Integer(((p_type(1) << word_size) * ((p_type(1) << l) - divisor)) / divisor);
+                multiplier_ = division_policy::calculate_multiplier(divisor, l);
                 shift_1_ = std::min(l, Integer(1));
                 shift_2_ = l - shift_1_;  //max(l - 1, 0)
             }
@@ -66,12 +69,12 @@ namespace fast_division {
         Integer shift_2_;
     };
 
-
-    template <typename Integer>
-    class constant_divider_base<Integer, true> {
+    template <typename Integer, template <typename I, bool S> class DivisionPolicy>
+    class constant_divider_base<Integer, true, DivisionPolicy> {
     public:
         constexpr static const auto word_size = sizeof(Integer) * 8;
         using p_type = utility::promotion_t<Integer>;
+        using division_policy = DivisionPolicy<Integer, true>;
 
         explicit constant_divider_base(Integer divisor)
         {
@@ -87,8 +90,9 @@ namespace fast_division {
 
             Integer l = utility::log2i(abs_divisor - 1) + 1;
             l = std::max(l, Integer(1));
+            //multiplier_ = 1 + Integer((p_type(1) << (word_size + shift_)) / abs_divisor - (p_type(1) << word_size));
+            multiplier_ = division_policy::calculate_multiplier(abs_divisor, l);
             shift_ = l - 1;
-            multiplier_ = 1 + Integer((p_type(1) << (word_size + shift_)) / abs_divisor - (p_type(1) << word_size));
         }
 
         Integer operator()(Integer input) const
@@ -97,7 +101,6 @@ namespace fast_division {
             q = (q >> shift_) - (input >= 0 ? 0 : -1);
             return (q ^ sign_) - sign_;
         }
-
 
         template <typename Simd, typename = std::enable_if_t<utility::is_simd<Simd>::value>>
         Simd operator()(Simd input) const

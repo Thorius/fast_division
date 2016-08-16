@@ -186,9 +186,9 @@ bool fd_t::random_unsigned_division()
     // Test for uint8_t
     auto uint8_test = random_division_impl<uint8_t>(10000, 10000);
     // Test for uint16_t
-    auto uint16_test = random_division_impl<uint16_t>(1000, 100000);
+    auto uint16_test = random_division_impl<uint16_t>(10000, 10000);
     // Test for uint32_t
-    auto uint32_test = random_division_impl<uint32_t>(1000, 100000);
+    auto uint32_test = random_division_impl<uint32_t>(100000, 10000);
     
     return uint8_test && uint16_test && uint32_test;
 }
@@ -197,11 +197,11 @@ bool fd_t::random_signed_division()
 {
 
     // Test for uint8_t
-    auto int8_test = random_division_impl<int8_t>(10000, 10000);
+    auto int8_test = random_division_impl<int8_t>(1000, 10000);
     // Test for uint16_t
-    auto int16_test = random_division_impl<int16_t>(1000, 100000);
+    auto int16_test = random_division_impl<int16_t>(10000, 10000);
     // Test for uint32_t
-    auto int32_test = random_division_impl<int32_t>(1000, 100000);
+    auto int32_test = random_division_impl<int32_t>(100000, 10000);
 
     return int8_test && int16_test && int32_test;
 

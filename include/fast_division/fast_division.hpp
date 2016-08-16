@@ -13,16 +13,18 @@
 #include <utility>
 
 #include <fast_division/fast_division_base.hpp>
+#include <fast_division/division_policy.hpp>
 
 
 namespace fast_division {
 
-    template <typename Integer>
-    class constant_divider : constant_divider_base<Integer, std::is_signed<Integer>::value> {
+    template <typename Integer, template <typename I, bool S> class DivisionPolicy = promotion_policy>
+    class constant_divider : constant_divider_base<Integer, std::is_signed<Integer>::value,
+                                                   DivisionPolicy> {
     public:
-        using base = constant_divider_base<Integer, std::is_signed<Integer>::value>;
+        using base = constant_divider_base<Integer, std::is_signed<Integer>::value, DivisionPolicy>;
         using base::word_size;
-        using p_type = typename base::p_type;
+        using value_type = Integer;
         
         explicit constant_divider(Integer divisor)
             : divisor_(divisor), constant_divider_base(divisor)

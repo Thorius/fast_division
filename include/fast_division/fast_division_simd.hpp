@@ -12,15 +12,15 @@
 #include <cstdint>
 
 #include <fast_division/fast_division_base.hpp>
+#include <fast_division/division_policy.hpp>
 #include <fast_division/utility/associated_types.hpp>
 
 namespace fast_division {
 
     /// Specializations for various simd types.
-
     template<> template<>
     inline
-    __m128i constant_divider_base<uint32_t, false>::operator()<> (__m128i input) const
+    __m128i constant_divider_base<uint32_t, false, promotion_policy>::operator()<> (__m128i input) const
     {
         __m128i m = _mm_set1_epi32(multiplier_);
         __m128i s1 = _mm_setr_epi32(shift_1_, 0, 0, 0);
@@ -46,7 +46,7 @@ namespace fast_division {
 
     template<> template<>
     inline
-    __m256i constant_divider_base<uint32_t, false>::operator()<> (__m256i input) const
+    __m256i constant_divider_base<uint32_t, false, promotion_policy>::operator()<> (__m256i input) const
     {
         __m256i m = _mm256_set1_epi32(multiplier_);
         __m128i s1 = _mm_setr_epi32(shift_1_, 0, 0, 0);
@@ -70,9 +70,9 @@ namespace fast_division {
         return second_shift;
     }
 
-    template <typename Integer, typename Simd, typename = std::enable_if_t<utility::is_simd<Simd>>>
+    template <typename Integer, template <typename, bool> class P, typename Simd, typename = std::enable_if_t<utility::is_simd<Simd>>>
     inline
-    Simd operator/ (Simd divident, const constant_divider_base<Integer, std::is_signed<Integer>::value>& divisor)
+    Simd operator/ (Simd divident, const constant_divider_base<Integer, std::is_signed<Integer>::value, P>& divisor)
     {
         return divisor(divident);
     }

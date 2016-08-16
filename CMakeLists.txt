@@ -19,7 +19,8 @@ set(FAST_DIVISION_SOURCES
     ${FAST_DIVISION_SOURCE_DIR}/utility/associated_types.hpp
     ${FAST_DIVISION_SOURCE_DIR}/fast_division_simd.hpp
     ${FAST_DIVISION_SOURCE_DIR}/fast_division_base.hpp 
-    ${FAST_DIVISION_SOURCE_DIR}/fast_division.hpp)
+    ${FAST_DIVISION_SOURCE_DIR}/fast_division.hpp
+    ${FAST_DIVISION_SOURCE_DIR}/division_policy.hpp)
 target_include_directories(fast_division INTERFACE "include")
 #target_sources(fast_division INTERFACE ${FAST_DIVISION_SOURCES})
 
