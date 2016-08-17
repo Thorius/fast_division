@@ -51,9 +51,27 @@ namespace fast_division {
             auto q_1 = max / divisor;
             auto r_1 = max % divisor;
             auto inter = max == log_ceil ? (max - divisor + Integer(1)) : ((Integer(1) << log_ceil) - divisor);
-            auto q_2 = inter / divisor;
-            auto r_2 = inter % divisor;
-            return Integer(1) + q_1 * inter + q_2*(r_1 + Integer(1)) + (r_1 * r_2) / divisor;
+            auto decomposition = multiply_and_quotient(inter, r_1 + 1, divisor);
+            return Integer(1) + q_1 * inter + decomposition;
+        }
+
+        /// Calculate  floor((a_1*a_2)/d)  without the need to do a higher precision multiplication.
+        // [[Expects: a_1 <= d && a_2 <= d ]] 
+        static
+        Integer multiply_and_quotient(Integer a_1, Integer a_2, Integer d)
+        {
+            // The largest number of the form n*a_1 < d
+            Integer accum = Integer(0);
+            Integer quotient = Integer(0);
+            while (a_2) {
+                ++accum;
+                if (accum >= d) {
+                    ++quotient;
+                    accum -= d;
+                }
+                --a_2;
+            }
+            return quotient;
         }
     };
 

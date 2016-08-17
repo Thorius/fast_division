@@ -48,7 +48,8 @@ namespace {
         uint16_t, std::conditional_t<std::is_same<int8_t, T>::value,
                                      int16_t, T> >;
 
-    template<typename Integer, typename DivisionPolicy = fast_division::promotion_policy, typename SizeType = uint64_t>
+    template<typename Integer, template<typename, bool> class DivisionPolicy = fast_division::promotion_policy,
+             typename SizeType = uint64_t>
     bool random_division_impl(SizeType num_divisors, SizeType divisions_per_divisor)
     {
         using namespace  std;
@@ -68,6 +69,7 @@ namespace {
                 continue;
             }
             constant_divider<Integer, DivisionPolicy> divider(divisor_);
+            constant_divider<Integer, promotion_policy> divider_ref(divisor_);
             auto current_divisions = divisions_per_divisor;
             while (current_divisions) {
                 Integer dividend = static_cast<Integer>(dividend_distribution(dividend_generator));
@@ -82,8 +84,6 @@ namespace {
         }
         return is_correct;
     }
-
-
 
     template<typename Integer, typename DoubleWordInteger = fast_division::utility::promotion_t<Integer>,
              typename SizeType = uint64_t>
@@ -106,6 +106,50 @@ namespace {
                 is_correct = false;
             }
             --num_multiplication;
+        }
+        return is_correct;
+    }
+
+    template <typename Integer, typename DivisionPolicy, typename = std::enable_if_t<!std::is_signed<Integer>> >
+    Integer calculate_multiplier(Integer divisor, DivisionPolicy policy)
+    {
+        Integer multiplier;
+        if (divisor == 1) {
+            multiplier = 0;
+        }
+        else if ((divisor & (divisor - Integer(1))) == 0) {
+            multiplier = 0;
+        }
+        else {
+            Integer l = fast_division::utility::log2i(divisor - 1) + 1;
+            multiplier = DivisionPolicy::calculate_multiplier(divisor, l);
+        }
+        return multiplier;
+    }
+
+    template <typename Integer, template<typename, bool> class DivisionPolicy,
+              typename SizeType = uint64_t>
+    bool division_policy(SizeType num_divisors)
+    {
+        using namespace  std;
+        using namespace fast_division;
+        using test_policy = DivisionPolicy<Integer, std::is_signed<Integer>::value>>;
+        using reference_policy = promotion_policy<Integer, std::is_signed<Integer>::value>>;
+        bool is_correct = true;
+        random_device rd;
+        mt19937 generator(rd());
+        uniform_int_distribution<distribution_t<Integer>> integer_distribution(
+            numeric_limits<Integer>::min(), numeric_limits<Integer>::max());
+        while (num_divisors) {
+            Integer divisor = static_cast<Integer>(integer_distribution(generator));
+            if (divisor == Integer(0))
+                continue;
+            auto result   = calculate_multiplier(divisor, test_policy{});
+            auto expected = calculate_multiplier(divisor, reference_policy{});
+            if (result != expected) {
+                bool is_correct = false;
+            }
+            --num_divisors;
         }
         return is_correct;
     }
@@ -214,7 +258,7 @@ bool fd_t::random_unsigned_division()
 {
     using namespace std;
     // Test for uint8_t
-    auto uint8_test = random_division_impl<uint8_t>(10000, 10000);
+    auto uint8_test = random_division_impl<uint8_t, fast_division::decomposition_policy>(1000, 10000);
     // Test for uint16_t
     auto uint16_test = random_division_impl<uint16_t>(10000, 10000);
     // Test for uint32_t
