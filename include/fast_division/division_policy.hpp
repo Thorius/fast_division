@@ -58,7 +58,7 @@ namespace fast_division {
         static
         Integer calculate_multiplier(Integer divisor, Integer log_ceil)
         {
-            return Integer(1) + Integer(((p_type(1) << word_size) * ((p_type(1) << log_ceil) - divisor)) / divisor);
+            return Integer(1u) + Integer(((p_type(1u) << word_size) * ((p_type(1u) << log_ceil) - divisor)) / divisor);
         }
         
     };
@@ -101,7 +101,8 @@ namespace fast_division {
         Integer calculate_multiplier(Integer divisor, Integer log_ceil)
         {
             // TODO: Implement!
-            constexpr auto max = std::numeric_limits<Integer>::max();
+            using unsigned_integer = std::make_unsigned_t<Integer>;
+            constexpr auto max = std::numeric_limits<unsigned_integer>::max();
             auto q_1 = max / divisor;
             auto r_1 = max % divisor;
             auto inter = max == log_ceil ? (max - divisor + Integer(1)) : ((Integer(1) << log_ceil) - divisor);

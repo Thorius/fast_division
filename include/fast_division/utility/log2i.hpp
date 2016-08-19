@@ -6,10 +6,8 @@
 
 #include <cassert>
 
-namespace fast_division
-{
-    namespace utility
-    {
+namespace fast_division {
+    namespace utility {
         /// Efficiently compute the floor of the base-2 logarithm of an unsigned integer
         template <typename T> 
         T log2i(T value)

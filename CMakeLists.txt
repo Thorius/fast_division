@@ -16,7 +16,9 @@ set(FAST_DIVISION_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/fast_division)
 set(FAST_DIVISION_SOURCES 
     ${FAST_DIVISION_SOURCE_DIR}/utility/log2i.hpp
     ${FAST_DIVISION_SOURCE_DIR}/utility/high_multiplication.hpp
+    ${FAST_DIVISION_SOURCE_DIR}/utility/high_multiplication_promotion.hpp
     ${FAST_DIVISION_SOURCE_DIR}/utility/associated_types.hpp
+    ${FAST_DIVISION_SOURCE_DIR}/utility/uint128_t.hpp
     ${FAST_DIVISION_SOURCE_DIR}/fast_division_simd.hpp
     ${FAST_DIVISION_SOURCE_DIR}/fast_division_base.hpp 
     ${FAST_DIVISION_SOURCE_DIR}/fast_division.hpp

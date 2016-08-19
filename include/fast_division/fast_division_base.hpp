@@ -87,7 +87,6 @@ namespace fast_division {
 
             Integer l = utility::log2i(abs_divisor - 1) + 1;
             l = std::max(l, Integer(1));
-            //multiplier_ = 1 + Integer((p_type(1) << (word_size + shift_)) / abs_divisor - (p_type(1) << word_size));
             multiplier_ = division_policy::calculate_multiplier(abs_divisor, l);
             shift_ = l - 1;
         }

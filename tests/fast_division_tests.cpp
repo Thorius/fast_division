@@ -101,7 +101,7 @@ namespace {
             Integer m1 = static_cast<Integer>(integer_distribution(generator));
             Integer m2 = static_cast<Integer>(integer_distribution(generator));
             Integer result = utility::high_mult(m1, m2);
-            Integer expected = (DoubleWordInteger(m1) * DoubleWordInteger(m2)) >> (8 * sizeof(Integer));
+            Integer expected = Integer((DoubleWordInteger(m1) * DoubleWordInteger(m2)) >> (8 * sizeof(Integer)));
             if (result != expected) {
                 is_correct = false;
             }
@@ -258,14 +258,17 @@ bool fd_t::random_unsigned_division()
 {
     using namespace std;
     using fast_division::decomposition_policy;
+    using fast_division::promotion_policy;
     // Test for uint8_t
-    auto uint8_test = random_division_impl<uint8_t, decomposition_policy>(1000, 10000);
+    auto uint8_test = random_division_impl<uint8_t, promotion_policy>(1000, 10000);
     // Test for uint16_t
-    auto uint16_test = true;// random_division_impl<uint16_t, decomposition_policy>(100000, 10000);
+    auto uint16_test = random_division_impl<uint16_t,promotion_policy>(100000, 10000);
     // Test for uint32_t
-    auto uint32_test = random_division_impl<uint32_t, decomposition_policy>(100000, 10000);
+    auto uint32_test = random_division_impl<uint32_t, promotion_policy>(100000, 10000);
+    // Test for uint64_t
+    auto uint64_test = random_division_impl<uint64_t, promotion_policy>(100000, 10000);
     
-    return uint8_test && uint16_test && uint32_test;
+    return uint8_test && uint16_test && uint32_test && uint64_test;
 }
 
 bool fd_t::random_signed_division()

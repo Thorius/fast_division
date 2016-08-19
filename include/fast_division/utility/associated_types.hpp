@@ -4,6 +4,8 @@
 */
 #pragma once
 
+#include <fast_division/utility/uint128_t.hpp>
+
 namespace fast_division {
     namespace utility {
 
@@ -57,6 +59,11 @@ namespace fast_division {
         template <>
         struct promotion<uint32_t> {
             using type = uint64_t;
+        };
+
+        template <>
+        struct promotion<uint64_t> {
+            using type = uint128_t;
         };
 
         template <>
