@@ -267,7 +267,6 @@ bool fd_t::random_unsigned_division()
     auto uint32_test = random_division_impl<uint32_t, promotion_policy>(100000, 10000);
     // Test for uint64_t
     auto uint64_test = random_division_impl<uint64_t, promotion_policy>(100000, 10000);
-    
     return uint8_test && uint16_test && uint32_test && uint64_test;
 }
 
@@ -294,6 +293,8 @@ bool fd_t::high_multiplication()
     auto uint16_test = high_division_impl<uint16_t>(1000);
     // Test for uint32_t
     auto uint32_test = high_division_impl<uint32_t>(10000);
+    // Test for uint32_t
+    auto uint64_test = high_division_impl<uint64_t>(100000);
 
     // Test for int8_t
     auto int8_test = high_division_impl<int8_t>(100);
@@ -301,6 +302,8 @@ bool fd_t::high_multiplication()
     auto int16_test = high_division_impl<int16_t>(1000);
     // Test for int32_t
     auto int32_test = high_division_impl<int32_t>(10000);
-    return uint8_test && uint16_test && uint32_test &&
+    // Test for uint32_t
+    //auto int64_test = high_division_impl<uint32_t>(100000);
+    return uint8_test && uint16_test && uint32_test && uint64_test &&
            int8_test && int16_test && int32_test;
 }

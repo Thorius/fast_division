@@ -26,7 +26,7 @@ namespace fast_division {
     // [[Expects: a_1 <= d && a_2 <= d ]] 
     template <typename Integer>
     inline
-    Integer multiply_and_divide(Integer a_1, Integer a_2, Integer d)
+    Integer multiply_and_divide_slow(Integer a_1, Integer a_2, Integer d)
     {
         using utility::log2i;
         // Check if multiplication can fit into the number of bits of the integers.
@@ -49,6 +49,34 @@ namespace fast_division {
         }
         return quotient;
     }
+
+    template <typename Integer>
+    Integer multiply_and_divide(Integer a, Integer b, Integer c)
+    {
+        Integer q(0);
+        Integer r(0);
+        Integer qn = b / c;
+        Integer rn = b % c;
+        while(a) {
+            if (a & 1) {
+                q += qn;
+                r += rn;
+                if (r >= c) {
+                    ++q;
+                    r -= c;
+                }
+            }
+            a  >>= 1;
+            qn <<= 1;
+            rn <<= 1;
+            if (rn >= c) {
+                qn++; 
+                rn -= c;
+            }
+        }
+        return q;
+    }
+
     
     template <typename Integer, bool Signed>
     struct promotion_policy {
